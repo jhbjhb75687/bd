@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Animated Birthday Card</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css?family=Coming+Soon');
+        
+        /* CSS Variables (based on original SCSS) */
+        :root {
+            --outlineColor: #4c2a1e;
+            --border: 4px solid var(--outlineColor);
+            --shadow: 0px rgba(0, 0, 0, 0.15) inset;
+
+            --backgroundColor: #242026;
+            --cardColor: #fff3d8;
+            --cardGradient: linear-gradient(40deg, #fff3d8, #ffd987, #cc921e);
+            --cardWidth: 700px;
+            --cardHeight: 460px;
+            --cardBdrs: 20px;
+
+            --candleColor: #ff593f;
+            --fireColor: #ffcc66;
+            --fireColor2: #ffc36b;
+            --smokeColor: rgba(179, 177, 181, 0.8);
+
+            --cakeTopColor: #54728c;
+            --cakeTopButterColor: #85b6bf;
+            --cakeBottomColor: #fcdda4;
+            --cakeBottomButterColor: #fc7164;
+            --cakeWidth: 260px;
+            --cakeHeight: 65px;
+            --cakeBdrsBase: 10px;
+
+            --boyFaceColor: #ffddad;
+            --boyBlushColor: #ffa49e;
+            --boyBodyColor: #4b84d8;
+            --boyWidth: 230px;
+            --boyHeight: 280px;
+
+            --deskColor: #f4b7b5;
+        }
+
+        /* Utility Mixins converted to direct CSS */
+        .flex-center {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .abpos {
+            position: absolute;
+        }
+
+        /* --- Global Styles --- */
+        * {
+            transition: 2s;
+        }
+        html, body {
+            margin: 0;
+            width: 100%;
+            min-height: 100vh;
+            background-color: var(--backgroundColor);
+            font-family: 'Inter', sans-serif;
+            overflow: hidden; /* Hide potential scrollbar from animations */
+        }
+        label {
+            cursor: pointer;
+        }
+        input {
+            display: none;
+        }
+        .hint {
+            color: rgba(255, 255, 255, 0.8);
+            font-family: 'Coming Soon', cursive;
+            margin: 20px auto;
+            text-align: center;
+            font-size: 1.1rem;
+        }
+
+        /* --- Card --- */
+        .card {
+            width: min(95vw, var(--cardWidth));
+            height: clamp(350px, 80vh, var(--cardHeight));
+            background-image: var(--cardGradient);
+            background-size: 200% 100%;
+            background-position: 0;
+            border-radius: var(--cardBdrs);
+            position: relative;
+            box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.7);
+            overflow: hidden;
+            margin: auto;
+            transform-origin: center;
+        }
+
+        .title {
+            font-family: 'Coming Soon', cursive;
+            font-size: clamp(30px, 10vw, 60px);
+            margin: 10% 8%;
+            color: var(--outlineColor);
+            transform: rotate(-3deg);
+            position: absolute;
+            z-index: 999;
+            animation: titleAni 2s infinite;
+        }
+        .title span {
+            display: block;
+            line-height: 1.3;
+        }
+
+        /* --- Cake --- */
+        .cake {
+            width: clamp(150px, 40vw, 260px);
+            height: clamp(40px, 10vw, 65px);
+            position: absolute;
+            top: 56%;
+            left: clamp(10%, 15vw, 17%);
+            z-index: 999;
+            transform: scale(clamp(0.8, 0.8 + (100vw - 320px) / 1000, 1)); /* Responsive scale */
+            transform-origin: bottom left;
+        }
+
+        .candle-group {
+            width: 20%;
+            height: 65%;
+            margin: auto;
+            display: flex;
+            justify-content: space-around;
+            position: relative;
+            transform: translateX(100%);
+        }
+        .light {
+            width: 100px;
+            height: 100px;
+            position: absolute;
+            border-radius: 50%;
+            box-shadow: 0 0 50px rgba(255, 255, 255, 0.8);
+            top: -80%;
+            animation: lightAni 1s infinite;
+        }
+        .smoke {
+            width: 100px;
+            height: 100px;
+            position: absolute;
+        }
+        .smoke:before, .smoke:after {
+            content: '';
+            display: none;
+            background-color: var(--smokeColor);
+            box-shadow: 0 0 5px var(--smokeColor);
+            position: absolute;
+        }
+        .candle {
+            background: var(--candleColor);
+            width: 20%;
+            height: 100%;
+            position: relative;
+            border: var(--border);
+            border-radius: calc(var(--cakeBdrsBase) / 2) calc(var(--cakeBdrsBase) / 2) 0 0;
+            box-shadow: -3px var(--shadow);
+        }
+        .candle:before {
+            content: '';
+            display: block;
+            background: white;
+            width: 100%;
+            height: 35%;
+            transform: skewY(-30deg);
+            position: absolute;
+            top: 30%;
+            box-shadow: -3px var(--shadow);
+        }
+        .fire {
+            width: 130%;
+            height: 45%;
+            position: absolute;
+            background: var(--fireColor);
+            top: 0;
+            left: 100%;
+            border-radius: 100% 0 60% 50% / 60% 0 100% 50%;
+            border: var(--border);
+            transform: translate(-40%, -100%) rotate(-28deg);
+            transform-origin: 50% 100%;
+            box-shadow: -3px var(--shadow);
+            animation: fireAni 1s infinite;
+        }
+
+        .cake-top {
+            width: 80%;
+            height: 90%;
+            background-color: var(--cakeTopColor);
+            margin: auto;
+            position: relative;
+            border-radius: var(--cakeBdrsBase) var(--cakeBdrsBase) 0 0;
+            border-top: var(--border);
+            border-left: var(--border);
+            border-right: var(--border);
+            box-shadow: -25px var(--shadow);
+        }
+        .cake-top:before {
+            content: '';
+            display: block;
+            width: 100%;
+            height: 30%;
+            background-color: var(--cakeTopButterColor);
+            position: relative;
+            top: 50%;
+            transform: translatey(-50%);
+            box-shadow: -25px var(--shadow);
+        }
+
+        .cake-bottom {
+            width: 80%;
+            height: 100%;
+            background-color: var(--cakeBottomColor);
+            border-radius: var(--cakeBdrsBase) var(--cakeBdrsBase) 0 0;
+            margin: auto;
+            border-left: var(--border);
+            border-right: var(--border);
+            border-top: var(--border);
+            box-shadow: -35px var(--shadow);
+        }
+        .cake-bottom .butter {
+            width: 100%;
+            height: 55%;
+            background-color: var(--cakeBottomButterColor);
+            display: flex;
+            position: relative;
+            border-radius: calc(var(--cakeBdrsBase) * 0.7) calc(var(--cakeBdrsBase) * 0.7) 0 0;
+            box-shadow: -35px var(--shadow);
+        }
+        .cake-bottom .butter-circle {
+            width: 100%;
+            height: 100%;
+            border-radius: 100%;
+            position: relative;
+            top: 40%;
+            background-color: var(--cakeBottomButterColor);
+        }
+        .cake-bottom .butter-circle:nth-of-type(6) {
+            box-shadow: -35px var(--shadow);
+        }
+        .plate {
+            width: 100%;
+            height: 20%;
+            border-radius: var(--cakeBdrsBase);
+            background-color: var(--outlineColor);
+            left: -50%;
+            box-shadow: -45px var(--shadow);
+        }
+
+        /* --- Boy --- */
+        .boy {
+            width: clamp(150px, 35vw, 230px);
+            height: clamp(200px, 50vh, 280px);
+            position: absolute;
+            top: 15%;
+            left: clamp(45%, 50vw, 55%);
+            z-index: 99;
+            transform: scale(clamp(0.8, 0.8 + (100vw - 320px) / 1000, 1)); /* Responsive scale */
+            transform-origin: top left;
+        }
+
+        .boy-head {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            z-index: 99;
+        }
+        .hairs {
+            width: 110%;
+            height: 60%;
+            position: absolute;
+            z-index: 10;
+            transform: translatex(-4%) rotate(7deg);
+        }
+        .hairs [class^="hair"] {
+            width: 0;
+            height: 0;
+            border-style: solid;
+            border-color: transparent transparent var(--outlineColor) transparent;
+            display: inline-block;
+            position: absolute;
+        }
+        .hair1 { border-width: 0 60px 120px 40px; transform: rotate(-30deg); top: -5%; left: -8%; }
+        .hair2 { border-width: 0 50px 135px 50px; transform: rotate(-15deg); top: -25%; left: 5%; }
+        .hair3 { border-width: 0 60px 130px 50px; transform: rotate(-5deg); top: -30%; left: 20%; }
+        .hair4 { border-width: 0 50px 140px 60px; transform: rotate(5deg); top: -35%; left: 35%; }
+        .hair5 { border-width: 0 60px 130px 50px; transform: rotate(15deg); top: -25%; left: 55%; }
+        .hair6 { border-width: 0 50px 120px 50px; transform: rotate(20deg); top: -10%; left: 70%; }
+
+        .face {
+            width: 100%;
+            height: 100%;
+            border-radius: 150px 150px 160px 130px;
+            background-color: var(--boyFaceColor);
+            position: relative;
+            border: var(--border);
+            box-shadow: -20px var(--shadow);
+        }
+        .eyebrows {
+            position: relative;
+            top: 35%;
+            left: -10%;
+            width: 100%;
+            height: 15%;
+            animation: eyebrowsAni 2s infinite;
+        }
+        .eyebrows:before, .eyebrows:after {
+            content: "";
+            display: inline-block;
+            width: 0;
+            height: 0;
+            border-style: solid;
+            position: absolute;
+            z-index: 10;
+            filter: drop-shadow(5px 5px 5px rgba(0, 0, 0, 0.3));
+        }
+        .eyebrows:before { border-width: 30px 0 0 100px; border-color: transparent transparent transparent var(--outlineColor); transform: rotate(12deg); left: -3%; }
+        .eyebrows:after { border-width: 0 0 30px 120px; border-color: transparent transparent var(--outlineColor) transparent; transform: rotate(-12deg); left: 58%; top: -1%; }
+        
+        .blush {
+            top: 65%;
+            position: absolute;
+            width: 70%;
+            height: 7%;
+            z-index: 999;
+            animation: blushAni 2s infinite;
+        }
+        .blush:before, .blush:after {
+            content: "";
+            display: block;
+            position: absolute;
+            background-color: var(--boyBlushColor);
+            border-radius: 45%;
+            box-shadow: -8px -5px rgba(0, 0, 0, 0.1) inset;
+            border: var(--border);
+        }
+        .blush:before { width: 25%; height: 100%; left: -20%; }
+        .blush:after { width: 30%; height: 105%; left: 100%; top: 10%; }
+        
+        .eyes {
+            position: relative;
+            top: 37%;
+            left: 8%;
+            width: 90%;
+            height: 11%;
+        }
+        .eyes:before, .eyes:after {
+            content: "";
+            display: inline-block;
+            width: 18px;
+            height: 100%;
+            background-color: var(--outlineColor);
+            border-radius: 45%;
+            position: absolute;
+            z-index: 10;
+            animation: blink 2s infinite;
+        }
+        .eyes:before { left: 0; }
+        .eyes:after { left: 55%; }
+        
+        .mouth {
+            position: relative;
+            top: 45%;
+            left: 24%;
+            width: 20%;
+            height: 20%;
+            box-shadow: 15px var(--shadow);
+            border-radius: 48%;
+            background-color: var(--outlineColor);
+            transform: rotate(-5deg);
+            transform-origin: 0 50%;
+            animation: breathMouth 2s infinite;
+        }
+
+        .boy-body {
+            width: 36%;
+            height: 26.8%;
+            position: relative;
+            margin: auto;
+        }
+        .body {
+            width: 90%;
+            height: 80%;
+            position: relative;
+            z-index: 50;
+            border-radius: 50% 50% 0 0;
+            background-color: var(--boyBodyColor);
+            border: var(--border);
+            top: -11%;
+            box-shadow: -25px var(--shadow);
+            z-index: 8;
+            overflow: hidden;
+            animation: breath 2s infinite;
+        }
+        .body:before, .body:after {
+            content: "";
+            display: block;
+            width: 12px;
+            height: 12px;
+            background-color: rgba(255, 255, 255, 0.9);
+            border: var(--border);
+            border-radius: 50%;
+            position: relative;
+            top: 14%;
+            left: 6%;
+            margin: 10px;
+            box-shadow: -3px var(--shadow);
+        }
+
+        .hands .left-hand, .hands .right-hand {
+            width: 35%;
+            height: 130%;
+            border-radius: 20px;
+            background-color: var(--boyFaceColor);
+            position: absolute;
+            border: var(--border);
+            box-shadow: -10px var(--shadow);
+            z-index: 1000;
+            transform-origin: center top;
+        }
+        .hands .left-hand:before, .hands .right-hand:before {
+            content: '';
+            display: block;
+            width: 100%;
+            height: 30%;
+            background-color: var(--boyBodyColor);
+            box-shadow: -10px var(--shadow);
+            border: var(--border);
+            border-radius: 20px 20px 0 0;
+            position: absolute;
+            top: -4px;
+            left: -4px;
+        }
+        .hands .left-hand {
+            top: 25%;
+            left: 4px;
+            transform: rotate(100deg);
+            z-index: 100;
+            animation: leftHandAni 2s infinite;
+        }
+        .hands .right-hand {
+            top: 25%;
+            left: 50%;
+            transform: rotate(-120deg);
+            animation: rightHandAni 2s infinite;
+        }
+
+        /* --- Desk --- */
+        .desk {
+            width: 100%;
+            height: 15%;
+            border-top: var(--border);
+            position: absolute;
+            top: 88%;
+            background-color: var(--deskColor);
+            z-index: 50;
+            box-shadow: 0px -20px rgba(0, 0, 0, 0.2) inset;
+        }
+
+        /* --- Sprinkles (100 static blocks converted from SCSS loop) --- */
+        .sprinkles {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            left: 0;
+            top: 0;
+        }
+        .sprinkles [class^='sprinkle'] {
+            width: 5px;
+            height: 10px;
+            border-radius: 50%;
+            animation: sprinkleAni 5s infinite;
+        }
+
+        /* Generated Sprinkles (100 static positions) - Randomly calculated by the LLM */
+        .sprinkle1 { left: 47%; top: 73%; background-color: rgb(291, 143, 114); animation-delay: -0.1s; }
+        .sprinkle2 { left: 54%; top: 51%; background-color: rgb(254, 185, 178); animation-delay: -0.2s; }
+        .sprinkle3 { left: 88%; top: 38%; background-color: rgb(179, 102, 107); animation-delay: -0.3s; }
+        .sprinkle4 { left: 63%; top: 21%; background-color: rgb(151, 169, 137); animation-delay: -0.4s; }
+        .sprinkle5 { left: 78%; top: 31%; background-color: rgb(242, 119, 185); animation-delay: -0.5s; }
+        .sprinkle6 { left: 82%; top: 62%; background-color: rgb(298, 129, 104); animation-delay: -0.6s; }
+        .sprinkle7 { left: 34%; top: 22%; background-color: rgb(298, 148, 114); animation-delay: -0.7s; }
+        .sprinkle8 { left: 91%; top: 21%; background-color: rgb(194, 153, 104); animation-delay: -0.8s; }
+        .sprinkle9 { left: 74%; top: 23%; background-color: rgb(200, 161, 196); animation-delay: -0.9s; }
+        .sprinkle10 { left: 7%; top: 40%; background-color: rgb(204, 107, 137); animation-delay: -1s; }
+        .sprinkle11 { left: 47%; top: 3%; background-color: rgb(260, 100, 137); animation-delay: -1.1s; }
+        .sprinkle12 { left: 53%; top: 33%; background-color: rgb(190, 109, 197); animation-delay: -1.2s; }
+        .sprinkle13 { left: 24%; top: 41%; background-color: rgb(167, 101, 155); animation-delay: -1.3s; }
+        .sprinkle14 { left: 51%; top: 58%; background-color: rgb(160, 183, 110); animation-delay: -1.4s; }
+        .sprinkle15 { left: 78%; top: 1%; background-color: rgb(184, 118, 150); animation-delay: -1.5s; }
+        .sprinkle16 { left: 3%; top: 12%; background-color: rgb(185, 101, 130); animation-delay: -1.6s; }
+        .sprinkle17 { left: 56%; top: 53%; background-color: rgb(240, 189, 161); animation-delay: -1.7s; }
+        .sprinkle18 { left: 28%; top: 19%; background-color: rgb(190, 172, 190); animation-delay: -1.8s; }
+        .sprinkle19 { left: 16%; top: 54%; background-color: rgb(268, 119, 219); animation-delay: -1.9s; }
+        .sprinkle20 { left: 63%; top: 52%; background-color: rgb(280, 117, 119); animation-delay: -2s; }
+        .sprinkle21 { left: 56%; top: 12%; background-color: rgb(187, 114, 115); animation-delay: -2.1s; }
+        .sprinkle22 { left: 1%; top: 27%; background-color: rgb(243, 190, 164); animation-delay: -2.2s; }
+        .sprinkle23 { left: 23%; top: 8%; background-color: rgb(184, 126, 212); animation-delay: -2.3s; }
+        .sprinkle24 { left: 44%; top: 45%; background-color: rgb(179, 172, 156); animation-delay: -2.4s; }
+        .sprinkle25 { left: 69%; top: 68%; background-color: rgb(252, 155, 179); animation-delay: -2.5s; }
+        .sprinkle26 { left: 81%; top: 15%; background-color: rgb(184, 142, 149); animation-delay: -2.6s; }
+        .sprinkle27 { left: 37%; top: 12%; background-color: rgb(263, 168, 149); animation-delay: -2.7s; }
+        .sprinkle28 { left: 91%; top: 62%; background-color: rgb(233, 168, 185); animation-delay: -2.8s; }
+        .sprinkle29 { left: 56%; top: 41%; background-color: rgb(151, 154, 152); animation-delay: -2.9s; }
+        .sprinkle30 { left: 40%; top: 23%; background-color: rgb(290, 144, 110); animation-delay: -3s; }
+        .sprinkle31 { left: 46%; top: 17%; background-color: rgb(213, 145, 137); animation-delay: -3.1s; }
+        .sprinkle32 { left: 32%; top: 4%; background-color: rgb(250, 107, 131); animation-delay: -3.2s; }
+        .sprinkle33 { left: 33%; top: 64%; background-color: rgb(256, 172, 117); animation-delay: -3.3s; }
+        .sprinkle34 { left: 18%; top: 17%; background-color: rgb(200, 159, 117); animation-delay: -3.4s; }
+        .sprinkle35 { left: 74%; top: 8%; background-color: rgb(271, 184, 193); animation-delay: -3.5s; }
+        .sprinkle36 { left: 47%; top: 24%; background-color: rgb(167, 141, 102); animation-delay: -3.6s; }
+        .sprinkle37 { left: 50%; top: 2%; background-color: rgb(260, 166, 126); animation-delay: -3.7s; }
+        .sprinkle38 { left: 60%; top: 46%; background-color: rgb(243, 154, 136); animation-delay: -3.8s; }
+        .sprinkle39 { left: 39%; top: 17%; background-color: rgb(156, 106, 174); animation-delay: -3.9s; }
+        .sprinkle40 { left: 37%; top: 79%; background-color: rgb(243, 129, 120); animation-delay: -4s; }
+        .sprinkle41 { left: 70%; top: 13%; background-color: rgb(251, 175, 133); animation-delay: -4.1s; }
+        .sprinkle42 { left: 96%; top: 71%; background-color: rgb(250, 174, 182); animation-delay: -4.2s; }
+        .sprinkle43 { left: 74%; top: 42%; background-color: rgb(173, 110, 193); animation-delay: -4.3s; }
+        .sprinkle44 { left: 50%; top: 60%; background-color: rgb(287, 177, 146); animation-delay: -4.4s; }
+        .sprinkle45 { left: 17%; top: 2%; background-color: rgb(228, 177, 175); animation-delay: -4.5s; }
+        .sprinkle46 { left: 10%; top: 67%; background-color: rgb(290, 159, 163); animation-delay: -4.6s; }
+        .sprinkle47 { left: 74%; top: 14%; background-color: rgb(290, 111, 195); animation-delay: -4.7s; }
+        .sprinkle48 { left: 47%; top: 8%; background-color: rgb(276, 176, 198); animation-delay: -4.8s; }
+        .sprinkle49 { left: 63%; top: 76%; background-color: rgb(194, 134, 171); animation-delay: -4.9s; }
+        .sprinkle50 { left: 81%; top: 56%; background-color: rgb(154, 116, 201); animation-delay: -5s; }
+        .sprinkle51 { left: 30%; top: 69%; background-color: rgb(260, 166, 148); animation-delay: -5.1s; }
+        .sprinkle52 { left: 6%; top: 28%; background-color: rgb(152, 103, 143); animation-delay: -5.2s; }
+        .sprinkle53 { left: 92%; top: 6%; background-color: rgb(291, 160, 162); animation-delay: -5.3s; }
+        .sprinkle54 { left: 81%; top: 49%; background-color: rgb(244, 126, 195); animation-delay: -5.4s; }
+        .sprinkle55 { left: 13%; top: 38%; background-color: rgb(277, 128, 119); animation-delay: -5.5s; }
+        .sprinkle56 { left: 55%; top: 11%; background-color: rgb(259, 114, 165); animation-delay: -5.6s; }
+        .sprinkle57 { left: 83%; top: 5%; background-color: rgb(290, 161, 147); animation-delay: -5.7s; }
+        .sprinkle58 { left: 24%; top: 62%; background-color: rgb(154, 174, 178); animation-delay: -5.8s; }
+        .sprinkle59 { left: 28%; top: 71%; background-color: rgb(254, 175, 143); animation-delay: -5.9s; }
+        .sprinkle60 { left: 58%; top: 14%; background-color: rgb(280, 128, 187); animation-delay: -6s; }
+        .sprinkle61 { left: 71%; top: 58%; background-color: rgb(286, 176, 107); animation-delay: -6.1s; }
+        .sprinkle62 { left: 2%; top: 4%; background-color: rgb(191, 145, 129); animation-delay: -6.2s; }
+        .sprinkle63 { left: 96%; top: 41%; background-color: rgb(272, 180, 137); animation-delay: -6.3s; }
+        .sprinkle64 { left: 42%; top: 54%; background-color: rgb(231, 186, 141); animation-delay: -6.4s; }
+        .sprinkle65 { left: 47%; top: 52%; background-color: rgb(288, 142, 114); animation-delay: -6.5s; }
+        .sprinkle66 { left: 48%; top: 50%; background-color: rgb(220, 160, 106); animation-delay: -6.6s; }
+        .sprinkle67 { left: 50%; top: 6%; background-color: rgb(282, 116, 186); animation-delay: -6.7s; }
+        .sprinkle68 { left: 32%; top: 30%; background-color: rgb(290, 186, 101); animation-delay: -6.8s; }
+        .sprinkle69 { left: 10%; top: 60%; background-color: rgb(284, 101, 146); animation-delay: -6.9s; }
+        .sprinkle70 { left: 95%; top: 2%; background-color: rgb(168, 136, 169); animation-delay: -7s; }
+        .sprinkle71 { left: 28%; top: 65%; background-color: rgb(153, 174, 165); animation-delay: -7.1s; }
+        .sprinkle72 { left: 78%; top: 41%; background-color: rgb(200, 185, 147); animation-delay: -7.2s; }
+        .sprinkle73 { left: 28%; top: 36%; background-color: rgb(241, 173, 180); animation-delay: -7.3s; }
+        .sprinkle74 { left: 23%; top: 50%; background-color: rgb(260, 179, 112); animation-delay: -7.4s; }
+        .sprinkle75 { left: 77%; top: 79%; background-color: rgb(235, 121, 170); animation-delay: -7.5s; }
+        .sprinkle76 { left: 55%; top: 49%; background-color: rgb(202, 173, 162); animation-delay: -7.6s; }
+        .sprinkle77 { left: 64%; top: 30%; background-color: rgb(215, 108, 196); animation-delay: -7.7s; }
+        .sprinkle78 { left: 81%; top: 72%; background-color: rgb(154, 182, 190); animation-delay: -7.8s; }
+        .sprinkle79 { left: 56%; top: 62%; background-color: rgb(280, 112, 139); animation-delay: -7.9s; }
+        .sprinkle80 { left: 14%; top: 15%; background-color: rgb(289, 136, 128); animation-delay: -8s; }
+        .sprinkle81 { left: 19%; top: 68%; background-color: rgb(227, 109, 153); animation-delay: -8.1s; }
+        .sprinkle82 { left: 63%; top: 3%; background-color: rgb(194, 166, 101); animation-delay: -8.2s; }
+        .sprinkle83 { left: 63%; top: 43%; background-color: rgb(221, 146, 152); animation-delay: -8.3s; }
+        .sprinkle84 { left: 16%; top: 22%; background-color: rgb(290, 100, 109); animation-delay: -8.4s; }
+        .sprinkle85 { left: 21%; top: 74%; background-color: rgb(161, 112, 179); animation-delay: -8.5s; }
+        .sprinkle86 { left: 22%; top: 32%; background-color: rgb(173, 180, 133); animation-delay: -8.6s; }
+        .sprinkle87 { left: 11%; top: 5%; background-color: rgb(178, 127, 122); animation-delay: -8.7s; }
+        .sprinkle88 { left: 82%; top: 25%; background-color: rgb(194, 130, 150); animation-delay: -8.8s; }
+        .sprinkle89 { left: 35%; top: 27%; background-color: rgb(204, 123, 166); animation-delay: -8.9s; }
+        .sprinkle90 { left: 80%; top: 25%; background-color: rgb(160, 162, 123); animation-delay: -9s; }
+        .sprinkle91 { left: 45%; top: 39%; background-color: rgb(240, 115, 149); animation-delay: -9.1s; }
+        .sprinkle92 { left: 31%; top: 55%; background-color: rgb(223, 186, 123); animation-delay: -9.2s; }
+        .sprinkle93 { left: 20%; top: 57%; background-color: rgb(270, 167, 156); animation-delay: -9.3s; }
+        .sprinkle94 { left: 61%; top: 75%; background-color: rgb(211, 119, 154); animation-delay: -9.4s; }
+        .sprinkle95 { left: 24%; top: 73%; background-color: rgb(176, 101, 184); animation-delay: -9.5s; }
+        .sprinkle96 { left: 89%; top: 50%; background-color: rgb(266, 183, 151); animation-delay: -9.6s; }
+        .sprinkle97 { left: 36%; top: 40%; background-color: rgb(260, 186, 101); animation-delay: -9.7s; }
+        .sprinkle98 { left: 95%; top: 45%; background-color: rgb(166, 149, 139); animation-delay: -9.8s; }
+        .sprinkle99 { left: 15%; top: 12%; background-color: rgb(151, 178, 138); animation-delay: -9.9s; }
+        .sprinkle100 { left: 9%; top: 32%; background-color: rgb(190, 123, 172); animation-delay: -10s; }
+        
+        /* --- CHECKED State (Interactivity) --- */
+        input:checked + .card {
+            background-position: 100%;
+        }
+        input:checked + .card * {
+            filter: brightness(98%);
+        }
+        input:checked + .card .light {
+            animation: lightAni 1s infinite, lightDisappearAni 1s forwards;
+        }
+        input:checked + .card .smoke:before, input:checked + .card .smoke:after {
+            display: block;
+        }
+        input:checked + .card .smoke:before {
+            width: 20px;
+            height: 20px;
+            top: -60%;
+            left: 35%;
+            border-radius: 50%;
+            animation: smokeTopAni 1s forwards;
+        }
+        input:checked + .card .smoke:after {
+            width: 80px;
+            height: 5px;
+            top: -10%;
+            left: -100%;
+            border-radius: 10px;
+            transform-origin: 0% 50%;
+            animation: smokeLeftAni 1s forwards;
+        }
+        input:checked + .card .fire {
+            animation: fireAni 1s infinite, fireDisappearAni 1s forwards;
+        }
+        input:checked + .card .boy-head {
+            animation: blowHead 1s forwards;
+        }
+        input:checked + .card .face .mouth {
+            animation: blowMouth 1s forwards;
+        }
+        input:checked + .card .body {
+            animation: breath 2s infinite, blowBody 1s forwards;
+        }
+        input:checked + .card .sprinkles [class^='sprinkle'] {
+            width: 6px;
+            height: 12px;
+        }
+
+        /* --- Animations --- */
+        @keyframes titleAni {
+            0%, 100% {}
+            60% { transform: rotate(-2deg) scale(1.05) translate(2px, 2px); }
+        }
+        @keyframes blink {
+            0%, 95% { box-shadow: none; }
+            100% { box-shadow: 0px 31px var(--boyFaceColor) inset; }
+        }
+        @keyframes eyebrowsAni {
+            0%, 100% { transform: translateY(0%); }
+            80% { transform: translateY(-5%); }
+        }
+        @keyframes blushAni {
+            0%, 100% { transform: translateY(0%); }
+            60% { transform: translateY(5%); }
+        }
+        @keyframes lightAni {
+            0%, 100% {}
+            60% { transform: scale(1.5); }
+        }
+        @keyframes fireAni {
+            0%, 100% { transform: translate(-40%, -100%) rotate(-28deg); }
+            60% { transform: translate(-30%, -110%) rotate(-40deg) scaleX(1.3) scaleY(1.1); background: var(--fireColor2); }
+        }
+        @keyframes leftHandAni {
+            0%, 100% { transform: rotate(100deg); }
+            60% { transform: rotate(80deg); }
+        }
+        @keyframes rightHandAni {
+            0%, 100% { transform: rotate(-120deg); }
+            60% { transform: rotate(-80deg); }
+        }
+        @keyframes breath {
+            0%, 100% {}
+            60% { transform: scaleX(1.05); }
+        }
+        @keyframes breathMouth {
+            0%, 100% {}
+            60% { transform: rotate(-5deg) scale(1.1); }
+        }
+        @keyframes sprinkleAni {
+            0%, 100% { opacity: 0; }
+            70% { opacity: 1; }
+            100% { transform: translate(50px, 250px); }
+        }
+        @keyframes blowMouth {
+            0% {}
+            30% { transform: rotate(-5deg) scale(1.5); }
+            70% { transform: rotate(-5deg) scale(0.2); }
+            100% { transform: rotate(-5deg) scale(0.3); }
+        }
+        @keyframes blowHead {
+            0%, 100% { transform: scale(1); }
+            30% { transform: scale(1.05); }
+            70% { transform: scale(0.95); }
+        }
+        @keyframes blowBody {
+            0%, 100% { width: 90%; height: 80%; }
+            30% { width: 100%; height: 80%; left: -5%; }
+            70% { width: 80%; height: 80%; left: 1%; }
+        }
+        @keyframes lightDisappearAni {
+            0%, 69% { opacity: 1; width: 100px; height: 100px; }
+            70%, 100% { opacity: 0; width: 0px; height: 0px; }
+        }
+        @keyframes fireDisappearAni {
+            0%, 69% { opacity: 1; }
+            70% { opacity: 0; }
+            100% { opacity: 0; display: none; }
+        }
+        @keyframes smokeTopAni {
+            0%, 60%, 100% { opacity: 0; transform: scale(0); }
+            70% { opacity: 1; transform: scale(1.2); top: -70%; left: 20%; }
+            100% { top: -90%; left: 0%; }
+        }
+        @keyframes smokeLeftAni {
+            0%, 60%, 100% { opacity: 0; transform: scaleX(0); }
+            70% { left: -120%; opacity: 1; transform: scaleX(1.1); }
+            100% { left: -150%; }
+        }
+    </style>
+</head>
+<body class="flex-center">
+    <label>
+        <h4 class="hint">Click to blow out the candles!</h4>
+        <input type="checkbox">
+        <div class="card rounded-xl">
+            <!-- Sprinkles Layer -->
+            <div class="sprinkles abpos">
+                <!-- Sprinkles 1-100 -->
+                <div class="sprinkle1 abpos"></div><div class="sprinkle2 abpos"></div><div class="sprinkle3 abpos"></div><div class="sprinkle4 abpos"></div><div class="sprinkle5 abpos"></div><div class="sprinkle6 abpos"></div><div class="sprinkle7 abpos"></div><div class="sprinkle8 abpos"></div><div class="sprinkle9 abpos"></div><div class="sprinkle10 abpos"></div><div class="sprinkle11 abpos"></div><div class="sprinkle12 abpos"></div><div class="sprinkle13 abpos"></div><div class="sprinkle14 abpos"></div><div class="sprinkle15 abpos"></div><div class="sprinkle16 abpos"></div><div class="sprinkle17 abpos"></div><div class="sprinkle18 abpos"></div><div class="sprinkle19 abpos"></div><div class="sprinkle20 abpos"></div><div class="sprinkle21 abpos"></div><div class="sprinkle22 abpos"></div><div class="sprinkle23 abpos"></div><div class="sprinkle24 abpos"></div><div class="sprinkle25 abpos"></div><div class="sprinkle26 abpos"></div><div class="sprinkle27 abpos"></div><div class="sprinkle28 abpos"></div><div class="sprinkle29 abpos"></div><div class="sprinkle30 abpos"></div><div class="sprinkle31 abpos"></div><div class="sprinkle32 abpos"></div><div class="sprinkle33 abpos"></div><div class="sprinkle34 abpos"></div><div class="sprinkle35 abpos"></div><div class="sprinkle36 abpos"></div><div class="sprinkle37 abpos"></div><div class="sprinkle38 abpos"></div><div class="sprinkle39 abpos"></div><div class="sprinkle40 abpos"></div><div class="sprinkle41 abpos"></div><div class="sprinkle42 abpos"></div><div class="sprinkle43 abpos"></div><div class="sprinkle44 abpos"></div><div class="sprinkle45 abpos"></div><div class="sprinkle46 abpos"></div><div class="sprinkle47 abpos"></div><div class="sprinkle48 abpos"></div><div class="sprinkle49 abpos"></div><div class="sprinkle50 abpos"></div><div class="sprinkle51 abpos"></div><div class="sprinkle52 abpos"></div><div class="sprinkle53 abpos"></div><div class="sprinkle54 abpos"></div><div class="sprinkle55 abpos"></div><div class="sprinkle56 abpos"></div><div class="sprinkle57 abpos"></div><div class="sprinkle58 abpos"></div><div class="sprinkle59 abpos"></div><div class="sprinkle60 abpos"></div><div class="sprinkle61 abpos"></div><div class="sprinkle62 abpos"></div><div class="sprinkle63 abpos"></div><div class="sprinkle64 abpos"></div><div class="sprinkle65 abpos"></div><div class="sprinkle66 abpos"></div><div class="sprinkle67 abpos"></div><div class="sprinkle68 abpos"></div><div class="sprinkle69 abpos"></div><div class="sprinkle70 abpos"></div><div class="sprinkle71 abpos"></div><div class="sprinkle72 abpos"></div><div class="sprinkle73 abpos"></div><div class="sprinkle74 abpos"></div><div class="sprinkle75 abpos"></div><div class="sprinkle76 abpos"></div><div class="sprinkle77 abpos"></div><div class="sprinkle78 abpos"></div><div class="sprinkle79 abpos"></div><div class="sprinkle80 abpos"></div><div class="sprinkle81 abpos"></div><div class="sprinkle82 abpos"></div><div class="sprinkle83 abpos"></div><div class="sprinkle84 abpos"></div><div class="sprinkle85 abpos"></div><div class="sprinkle86 abpos"></div><div class="sprinkle87 abpos"></div><div class="sprinkle88 abpos"></div><div class="sprinkle89 abpos"></div><div class="sprinkle90 abpos"></div><div class="sprinkle91 abpos"></div><div class="sprinkle92 abpos"></div><div class="sprinkle93 abpos"></div><div class="sprinkle94 abpos"></div><div class="sprinkle95 abpos"></div><div class="sprinkle96 abpos"></div><div class="sprinkle97 abpos"></div><div class="sprinkle98 abpos"></div><div class="sprinkle99 abpos"></div><div class="sprinkle100 abpos"></div>
+            </div>
+
+            <!-- Title -->
+            <h1 class="title">
+                <span>HAPPY</span>
+                <span>BIRTHDAY</span>
+                <span>HOUDINI</span>
+            </h1>
+
+            <!-- Cake Assembly -->
+            <div class="cake">
+                <div class="candle-group">
+                    <div class="light"></div>
+                    <div class="smoke"></div>
+                    <div class="candle">
+                        <div class="fire"></div>
+                    </div>
+                    <div class="candle">
+                        <div class="fire"></div>
+                    </div>
+                </div>
+                <div class="cake-top"></div>
+                <div class="cake-bottom">
+                    <div class="butter">
+                        <div class="butter-circle"></div>
+                        <div class="butter-circle"></div>
+                        <div class="butter-circle"></div>
+                        <div class="butter-circle"></div>
+                        <div class="butter-circle"></div>
+                        <div class="butter-circle"></div>
+                    </div>
+                </div>
+                <div class="plate"></div>
+            </div>
+
+            <!-- Boy Assembly -->
+            <div class="boy">
+                <div class="boy-head">
+                    <div class="hairs">
+                        <div class="hair1"></div>
+                        <div class="hair2"></div>
+                        <div class="hair3"></div>
+                        <div class="hair4"></div>
+                        <div class="hair5"></div>
+                        <div class="hair6"></div>
+                    </div>
+                    <div class="face">
+                        <div class="eyebrows"></div>
+                        <div class="eyes"></div>
+                        <div class="blush"></div>
+                        <div class="mouth"></div>
+                    </div>
+                </div>
+                <div class="boy-body">
+                    <div class="body"></div>
+                    <div class="hands">
+                        <div class="left-hand"></div>
+                        <div class="right-hand"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Desk/Table -->
+            <div class="desk"></div>
+        </div>
+    </label>
+</body>
+</html>
