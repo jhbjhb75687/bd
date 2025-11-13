@@ -53,7 +53,7 @@
             position: absolute;
         }
 
-        /* --- Global Styles --- */
+        /* --- Global Styles: MOBILE FIRST --- */
         * {
             transition: 2s;
         }
@@ -63,7 +63,12 @@
             min-height: 100vh;
             background-color: var(--backgroundColor);
             font-family: 'Inter', sans-serif;
-            overflow: hidden; /* Hide potential scrollbar from animations */
+            overflow: hidden; 
+            /* Added robust centering for mobile view */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 10px;
         }
         label {
             cursor: pointer;
@@ -79,10 +84,12 @@
             font-size: 1.1rem;
         }
 
-        /* --- Card --- */
+        /* --- Card (Base Mobile Size) --- */
         .card {
-            width: min(95vw, var(--cardWidth));
-            height: clamp(350px, 80vh, var(--cardHeight));
+            width: 95vw;
+            height: 90vh; /* Takes up most of the vertical screen */
+            max-width: var(--cardWidth);
+            max-height: var(--cardHeight);
             background-image: var(--cardGradient);
             background-size: 200% 100%;
             background-position: 0;
@@ -90,36 +97,78 @@
             position: relative;
             box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.7);
             overflow: hidden;
-            margin: auto;
             transform-origin: center;
+            margin: 0; /* Ensure no external margin */
         }
 
+        /* Title - Optimized for mobile */
         .title {
             font-family: 'Coming Soon', cursive;
-            font-size: clamp(30px, 10vw, 60px);
-            margin: 10% 8%;
+            font-size: 50px; /* Larger font on mobile */
+            margin: 5% 8%;
             color: var(--outlineColor);
             transform: rotate(-3deg);
             position: absolute;
             z-index: 999;
             animation: titleAni 2s infinite;
+            top: 0;
+            left: 0;
         }
         .title span {
             display: block;
             line-height: 1.3;
         }
 
-        /* --- Cake --- */
+        /* --- Cake - Optimized for mobile positioning and scaling --- */
         .cake {
             width: clamp(150px, 40vw, 260px);
             height: clamp(40px, 10vw, 65px);
             position: absolute;
-            top: 56%;
-            left: clamp(10%, 15vw, 17%);
+            top: 60%; /* Pushed down slightly */
+            left: 10%; /* Fixed position on the left */
             z-index: 999;
-            transform: scale(clamp(0.8, 0.8 + (100vw - 320px) / 1000, 1)); /* Responsive scale */
+            transform: scale(0.8); /* Simple scaling for mobile */
             transform-origin: bottom left;
         }
+
+        /* --- Boy - Optimized for mobile positioning and scaling --- */
+        .boy {
+            width: clamp(150px, 35vw, 230px);
+            height: clamp(200px, 50vh, 280px);
+            position: absolute;
+            top: 20%; /* Pushed down slightly */
+            left: 50%; /* Starts past center */
+            z-index: 99;
+            transform: scale(0.8); /* Simple scaling for mobile */
+            transform-origin: top left;
+        }
+
+
+        /* --- DESKTOP/Larger Screen Adjustments --- */
+        @media (min-width: 769px) {
+            .card {
+                width: var(--cardWidth);
+                height: var(--cardHeight);
+            }
+            .title {
+                font-size: 60px;
+                margin: 10% 8%;
+            }
+            .cake {
+                top: 56%;
+                left: 17%; /* Original desktop position */
+                /* Original complex scaling for larger screens */
+                transform: scale(clamp(0.8, 0.8 + (100vw - 320px) / 1000, 1)); 
+            }
+            .boy {
+                top: 15%;
+                left: 55%; /* Original desktop position */
+                /* Original complex scaling for larger screens */
+                transform: scale(clamp(0.8, 0.8 + (100vw - 320px) / 1000, 1)); 
+            }
+        }
+        
+        /* --- Rest of CSS (Unchanged from previous version) --- */
 
         .candle-group {
             width: 20%;
@@ -251,17 +300,6 @@
         }
 
         /* --- Boy --- */
-        .boy {
-            width: clamp(150px, 35vw, 230px);
-            height: clamp(200px, 50vh, 280px);
-            position: absolute;
-            top: 15%;
-            left: clamp(45%, 50vw, 55%);
-            z-index: 99;
-            transform: scale(clamp(0.8, 0.8 + (100vw - 320px) / 1000, 1)); /* Responsive scale */
-            transform-origin: top left;
-        }
-
         .boy-head {
             width: 100%;
             height: 100%;
@@ -473,6 +511,7 @@
             height: 10px;
             border-radius: 50%;
             animation: sprinkleAni 5s infinite;
+            position: absolute; /* Added position: absolute for sprinkles */
         }
 
         /* Generated Sprinkles (100 static positions) - Randomly calculated by the LLM */
@@ -624,7 +663,7 @@
             height: 12px;
         }
 
-        /* --- Animations --- */
+        /* --- Animations (Unchanged) --- */
         @keyframes titleAni {
             0%, 100% {}
             60% { transform: rotate(-2deg) scale(1.05) translate(2px, 2px); }
@@ -722,7 +761,6 @@
             <h1 class="title">
                 <span>HAPPY</span>
                 <span>BIRTHDAY</span>
-                <span>HOUDINI</span>
             </h1>
 
             <!-- Cake Assembly -->
